@@ -36,6 +36,7 @@
             this.resetPropertyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cmsTreeView = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.createHTMLDumpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createJSONDumpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -104,7 +105,8 @@
             // cmsTreeView
             // 
             this.cmsTreeView.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.createHTMLDumpToolStripMenuItem});
+            this.createHTMLDumpToolStripMenuItem,
+            this.createJSONDumpToolStripMenuItem});
             this.cmsTreeView.Name = "cmsTreeView";
             this.cmsTreeView.Size = new System.Drawing.Size(190, 26);
             // 
@@ -114,6 +116,14 @@
             this.createHTMLDumpToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.createHTMLDumpToolStripMenuItem.Text = "&Create HTML Dump...";
             this.createHTMLDumpToolStripMenuItem.Click += new System.EventHandler(this.createHTMLDumpToolStripMenuItem_Click);
+            // 
+            // createJSONDumpToolStripMenuItem
+            // 
+            this.createJSONDumpToolStripMenuItem.Name = "createJSONDumpToolStripMenuItem";
+            this.createJSONDumpToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.createJSONDumpToolStripMenuItem.Text = "&Create JSON Dump...";
+            this.createJSONDumpToolStripMenuItem.Click += new System.EventHandler(this.createJSONDumpToolStripMenuItem_Click);
+            // 
             // 
             // TableEntryEditor
             // 
@@ -141,5 +151,7 @@
         private System.Windows.Forms.ToolStripMenuItem resetPropertyToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip cmsTreeView;
         private System.Windows.Forms.ToolStripMenuItem createHTMLDumpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createJSONDumpToolStripMenuItem;
+
     }
 }

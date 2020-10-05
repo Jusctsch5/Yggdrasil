@@ -154,6 +154,7 @@ namespace Yggdrasil.Controls
 				if (treeView.SelectedNode != null)
 				{
 					createHTMLDumpToolStripMenuItem.Enabled = (treeView.SelectedNode.Tag is TableFile);
+					createJSONDumpToolStripMenuItem.Enabled = (treeView.SelectedNode.Tag is TableFile);
 					cmsTreeView.Show(treeView, e.Location);
 				}
 			}
@@ -186,5 +187,38 @@ namespace Yggdrasil.Controls
 				DataDumpers.DumpMessages(gameDataManager, files, sfd.FileName);
 			}
 		}
-	}
+
+		private void createJSONDumpToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			TableFile file = (tvMessageFiles.SelectedNode.Tag as TableFile);
+
+			SaveFileDialog sfd = new SaveFileDialog
+			{
+				InitialDirectory = ApplicationConfig.Instance.LastDataPath,
+				Title = "Save JSON dump",
+				Filter = "JSON Files (*.json)|*.json"
+			};
+			if (sfd.ShowDialog() == DialogResult.OK)
+			{
+				List<TableFile> files = new List<TableFile> { file };
+
+				if (gameDataManager.Version == GameDataManager.Versions.European &&
+					MessageBox.Show("Fetch every language version of this file to dump?", "Language Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+				{
+					string strippedName = Path.GetFileNameWithoutExtension(file.Filename);
+					foreach (KeyValuePair<GameDataManager.Languages, string> pair in gameDataManager.LanguageSuffixes) strippedName = strippedName.Replace(pair.Value, "");
+
+					files.AddRange(gameDataManager.MessageFiles
+						.Where(x => Path.GetFileNameWithoutExtension(x.Filename).StartsWith(strippedName) && x.Filename != file.Filename && x.FileNumber == file.FileNumber));
+				}
+
+				DataDumpers.DumpMessagesJSON(gameDataManager, files, sfd.FileName);
+			}
+		}
+
+        private void stringPreviewControl_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

@@ -44,8 +44,8 @@ namespace Yggdrasil.TableParsing
 			set { SetProperty(ref itemNumber, value, () => ItemNumber); }
 		}
 
-		public BaseItemParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+		public BaseItemParser(string parsedName, GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
+			base(parsedName, gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

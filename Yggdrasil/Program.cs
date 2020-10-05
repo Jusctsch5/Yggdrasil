@@ -17,7 +17,7 @@ namespace Yggdrasil
 		[STAThread]
 		static void Main()
 		{
-			Logger = new Logger();
+			Logger = new Logger("maindebug.txt");
 			Logger.LogMessage("{0} starting up...", TitleString);
 
 			Application.EnableVisualStyles();

@@ -238,6 +238,7 @@ namespace Yggdrasil.Controls
 				if (treeView.SelectedNode != null)
 				{
 					createHTMLDumpToolStripMenuItem.Enabled = (treeView.SelectedNode.Tag is List<BaseParser>);
+					createJSONDumpToolStripMenuItem.Enabled = (treeView.SelectedNode.Tag is List<BaseParser>);
 					cmsTreeView.Show(treeView, e.Location);
 				}
 			}
@@ -254,6 +255,20 @@ namespace Yggdrasil.Controls
 			if (sfd.ShowDialog() == DialogResult.OK)
 			{
 				DataDumpers.DumpParsers(gameDataManager, (tvParsers.SelectedNode.Tag as List<BaseParser>).FirstOrDefault().GetType(), sfd.FileName);
+			}
+		}
+
+		private void createJSONDumpToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog sfd = new SaveFileDialog
+			{
+				InitialDirectory = ApplicationConfig.Instance.LastDataPath,
+				Title = "Save JSON dump",
+				Filter = "JSON Files {*.json}|*.json"
+			};
+			if (sfd.ShowDialog() == DialogResult.OK)
+			{
+				DataDumpers.DumpParsersJSON(gameDataManager, (tvParsers.SelectedNode.Tag as List<BaseParser>).FirstOrDefault().GetType(), sfd.FileName);
 			}
 		}
 	}

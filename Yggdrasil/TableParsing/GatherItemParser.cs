@@ -187,7 +187,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetUnknown5() { Unknown5 = (dynamic)originalValues["Unknown5"]; }
 
 		public GatherItemParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("GatheredItems", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

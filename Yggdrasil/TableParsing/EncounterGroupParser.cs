@@ -110,7 +110,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetEncounterProbability3() { EncounterProbability3 = (dynamic)originalValues["EncounterProbability3"]; }
 
 		public EncounterGroupParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("EncounterGroups", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

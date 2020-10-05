@@ -16,6 +16,8 @@ namespace Yggdrasil.TableParsing
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		[Browsable(false)]
+		public string ParsedName { get; private set; }
+		[Browsable(false)]
 		public GameDataManager GameDataManager { get; private set; }
 		[Browsable(false)]
 		public DataTable ParentTable { get; private set; }
@@ -30,8 +32,9 @@ namespace Yggdrasil.TableParsing
 		[Browsable(false)]
 		public bool HasChanged { get { return GetType().GetProperties().Any(x => originalValues.ContainsKey(x.Name) && (dynamic)x.GetValue(this, null) != (dynamic)originalValues[x.Name]); } }
 
-		public BaseParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null)
+		public BaseParser(string parsedName, GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null)
 		{
+			ParsedName = parsedName;
 			GameDataManager = gameDataManager;
 			ParentTable = table;
 			EntryNumber = entryNumber;

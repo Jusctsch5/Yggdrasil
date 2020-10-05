@@ -111,7 +111,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetRequiredSkillLevel2() { RequiredSkillLevel2 = (dynamic)originalValues["RequiredSkillLevel2"]; }
 
 		public PlayerSkillReqParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("PlayerSkillReq", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

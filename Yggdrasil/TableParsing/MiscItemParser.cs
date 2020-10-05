@@ -130,7 +130,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetSellPrice() { SellPrice = (dynamic)originalValues["SellPrice"]; }
 
 		public MiscItemParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("MiscItem", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

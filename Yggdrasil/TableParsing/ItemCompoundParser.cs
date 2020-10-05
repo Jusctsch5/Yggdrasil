@@ -174,7 +174,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetUnknownPadding() { UnknownPadding = (dynamic)originalValues["UnknownPadding"]; }
 
 		public ItemCompoundParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("ItemRequirements", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

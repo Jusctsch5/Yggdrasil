@@ -138,7 +138,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetUnknown4() { Unknown4 = (dynamic)originalValues["Unknown4"]; }
 
 		public EncounterParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("Encounters", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

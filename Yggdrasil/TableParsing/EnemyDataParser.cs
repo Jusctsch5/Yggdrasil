@@ -439,7 +439,7 @@ namespace Yggdrasil.TableParsing
 		public void ResetUnknown8() { Unknown8 = (dynamic)originalValues["Unknown8"]; }
 
 		public EnemyDataParser(GameDataManager gameDataManager, DataTable table, int entryNumber, PropertyChangedEventHandler propertyChanged = null) :
-			base(gameDataManager, table, entryNumber, propertyChanged)
+			base("Enemies", gameDataManager, table, entryNumber, propertyChanged)
 		{ Load(); }
 
 		protected override void Load()

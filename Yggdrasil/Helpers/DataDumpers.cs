@@ -12,6 +12,7 @@ using Yggdrasil.FileHandling;
 using Yggdrasil.FileHandling.TableHandling;
 using Yggdrasil.TableParsing;
 using Yggdrasil.TextHandling;
+using System.Text.Json;
 
 namespace Yggdrasil.Helpers
 {
@@ -195,8 +196,176 @@ namespace Yggdrasil.Helpers
 			writer.Close();
 		}
 
-		public static void DumpParsers(GameDataManager gameDataManager, Type parserType, string outputFilename)
+		public static void DumpMessagesJSON(GameDataManager gameDataManager, List<TableFile> tableFiles, string outputFilename)
 		{
+			Logger log = new Logger("dump_messages_debug.txt");
+			string strippedName = Path.GetFileNameWithoutExtension(tableFiles.FirstOrDefault().Filename);
+			if (gameDataManager.Version == GameDataManager.Versions.European)
+			{
+				foreach (KeyValuePair<GameDataManager.Languages, string> pair in gameDataManager.LanguageSuffixes) strippedName = strippedName.Replace(pair.Value, "");
+			}
+
+			int numTables = (int)tableFiles.FirstOrDefault().NumTables;
+			if (!tableFiles.All(x => x.NumTables == numTables)) throw new Exception("Num tables mismatch!");
+
+			FileStream stream = File.Create(outputFilename);
+			using (var writer = new Utf8JsonWriter(stream))
+			{
+				for (int i = 0; i < numTables; i++)
+				{
+					int numMessages = (int)(tableFiles.FirstOrDefault().Tables[i] as MessageTable).NumMessages;
+					for (int j = 0; j < numMessages; j++)
+					{
+						if ((tableFiles.FirstOrDefault().Tables[i] as MessageTable).Messages[j].RawData.Length == 0) continue;
+
+						for (int k = 0; k < tableFiles.Count; k++)
+						{
+							string message = (tableFiles[k].Tables[i] as MessageTable).Messages[j].ConvertedString;
+							log.LogMessage(message);
+							//writer.Write(message);
+						}
+					}
+				}
+			}
+		}
+
+
+			/*
+
+					string jsonString = JsonSerializer.Serialize(weatherForecast);
+				}
+			}
+
+
+
+
+
+
+
+			using (WebUI.HtmlTextWriter html = new WebUI.HtmlTextWriter(writer))
+			{
+				html.WriteLine("<!DOCTYPE html>");
+				html.RenderBeginTag(WebUI.HtmlTextWriterTag.Html);
+				{
+					WriteHeader(html, string.Format("{0} Message Dump for {1}", System.Windows.Forms.Application.ProductName, strippedName));
+
+					html.RenderBeginTag(WebUI.HtmlTextWriterTag.Body);
+					{
+						html.AddAttribute(WebUI.HtmlTextWriterAttribute.Class, "container");
+						html.RenderBeginTag(WebUI.HtmlTextWriterTag.Div);
+						{
+							html.WriteEncodedText(string.Format("Message dump created by {0} {1}; dumping {2}, {3} tables...",
+								System.Windows.Forms.Application.ProductName,
+								VersionManagement.CreateVersionString(System.Windows.Forms.Application.ProductVersion),
+								(tableFiles.FirstOrDefault().FileNumber != -1 ? string.Format("{0}, file #{1}", strippedName, tableFiles.FirstOrDefault().FileNumber) : strippedName),
+								numTables));
+							html.WriteBreak();
+							html.WriteBreak();
+						}
+						html.RenderEndTag();
+
+						for (int i = 0; i < numTables; i++)
+						{
+							string tableId = string.Format("table-{0:D4}", i);
+
+							html.AddAttribute(WebUI.HtmlTextWriterAttribute.Class, "header");
+							html.RenderBeginTag(WebUI.HtmlTextWriterTag.Div);
+							{
+								html.AddAttribute(WebUI.HtmlTextWriterAttribute.Class, "header-text");
+								html.RenderBeginTag(WebUI.HtmlTextWriterTag.Span);
+								{
+									html.Write("Table {0}", i + 1);
+								}
+								html.RenderEndTag();
+
+								html.AddAttribute(WebUI.HtmlTextWriterAttribute.Class, "header-toggle");
+								html.RenderBeginTag(WebUI.HtmlTextWriterTag.Span);
+								{
+									html.AddAttribute(WebUI.HtmlTextWriterAttribute.Href, string.Format("javascript:toggle('{0}');", tableId), false);
+									html.RenderBeginTag(WebUI.HtmlTextWriterTag.A);
+									{
+										html.Write("+/-");
+									}
+									html.RenderEndTag();
+								}
+								html.RenderEndTag();
+							}
+							html.RenderEndTag();
+
+							html.AddAttribute(WebUI.HtmlTextWriterAttribute.Id, tableId);
+							html.AddStyleAttribute(WebUI.HtmlTextWriterStyle.Display, "table");
+							html.RenderBeginTag(WebUI.HtmlTextWriterTag.Table);
+							{
+								html.RenderBeginTag(WebUI.HtmlTextWriterTag.Tr);
+								{
+									html.RenderBeginTag(WebUI.HtmlTextWriterTag.Th);
+									{
+										html.Write("ID");
+									}
+									html.RenderEndTag();
+
+									foreach (TableFile file in tableFiles)
+									{
+										html.RenderBeginTag(WebUI.HtmlTextWriterTag.Th);
+										{
+											string language = Path.GetFileNameWithoutExtension(file.Filename);
+											language = gameDataManager.LanguageSuffixes.FirstOrDefault(x => x.Value == language.Substring(language.LastIndexOf('_'), 3)).Key.ToString();
+											html.Write(language);
+										}
+										html.RenderEndTag();
+									}
+								}
+								html.RenderEndTag();
+
+								int numMessages = (int)(tableFiles.FirstOrDefault().Tables[i] as MessageTable).NumMessages;
+								for (int j = 0; j < numMessages; j++)
+								{
+									if ((tableFiles.FirstOrDefault().Tables[i] as MessageTable).Messages[j].RawData.Length == 0) continue;
+
+									html.RenderBeginTag(WebUI.HtmlTextWriterTag.Tr);
+									{
+										html.AddAttribute(WebUI.HtmlTextWriterAttribute.Class, "desc-column-mesg");
+										html.RenderBeginTag(WebUI.HtmlTextWriterTag.Th);
+										{
+											html.Write("#{0}", j);
+										}
+										html.RenderEndTag();
+
+										for (int k = 0; k < tableFiles.Count; k++)
+										{
+											html.RenderBeginTag(WebUI.HtmlTextWriterTag.Td);
+											{
+												string message = (tableFiles[k].Tables[i] as MessageTable).Messages[j].ConvertedString;
+												message = message.Replace("<!pg>", "");
+												message = message.Replace(" ", "&nbsp;");
+												message = message.Replace("<", "&lt;");
+												message = message.Replace(">", "&gt;");
+												message = message.Replace(Environment.NewLine, "<br />");
+												html.Write(message);
+											}
+											html.RenderEndTag();
+										}
+									}
+									html.RenderEndTag();
+								}
+							}
+							html.RenderEndTag();
+							html.WriteBreak();
+						}
+					}
+					html.RenderEndTag();
+				}
+				html.RenderEndTag();
+			}
+			writer.Close();
+			
+		}
+	*/
+
+			public static void DumpParsers(GameDataManager gameDataManager, Type parserType, string outputFilename)
+		{
+			Logger log = new Logger("dump_parsers_text_html.txt");
+
 			List<BaseParser> parsedToDump = gameDataManager.ParsedData.Where(x => x.GetType() == parserType).ToList();
 			PropertyInfo[] properties = parserType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
 				.Where(x => !x.GetGetMethod().IsVirtual && (x.GetAttribute<BrowsableAttribute>() == null || x.GetAttribute<BrowsableAttribute>().Browsable == true) && x.DeclaringType != typeof(BaseParser))
@@ -286,6 +455,7 @@ namespace Yggdrasil.Helpers
 											{
 												DisplayNameAttribute displayName = property.GetAttribute<DisplayNameAttribute>();
 												DescriptionAttribute description = property.GetAttribute<DescriptionAttribute>();
+												log.LogMessageJSON("DisplayName:" + displayName.DisplayName);
 
 												html.AddAttribute(WebUI.HtmlTextWriterAttribute.Class, "tooltip");
 												html.RenderBeginTag(WebUI.HtmlTextWriterTag.Span);
@@ -319,6 +489,7 @@ namespace Yggdrasil.Helpers
 												}
 												var tmp = c.ConvertTo(v, typeof(string));
 												html.WriteEncodedText(tmp as string);
+												log.LogMessageJSON(tmp as string);
 											}
 											html.RenderEndTag();
 										}
@@ -335,6 +506,90 @@ namespace Yggdrasil.Helpers
 				html.RenderEndTag();
 			}
 			writer.Close();
+		}
+
+		public static void DumpParsersJSON(GameDataManager gameDataManager, Type parserType, string outputFilename)
+		{
+			Logger log = new Logger("dump_parsers_text.txt");
+
+
+			List<BaseParser> parsedToDump = gameDataManager.ParsedData.Where(x => x.GetType() == parserType).ToList();
+			PropertyInfo[] properties = parserType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+				.Where(x => !x.GetGetMethod().IsVirtual && (x.GetAttribute<BrowsableAttribute>() == null || x.GetAttribute<BrowsableAttribute>().Browsable == true) && x.DeclaringType != typeof(BaseParser))
+				.OrderBy(x => x.GetAttribute<Yggdrasil.Attributes.PrioritizedCategory>().Category)
+				.ToArray();
+
+			Dictionary<string, List<Dictionary<string, Dictionary<string, string>>>> mainJson = new Dictionary<string, List<Dictionary<string, Dictionary<string, string>>>>();
+			List<Dictionary<string, Dictionary<string, string>>> perElementDictList = new List<Dictionary<string, Dictionary<string, string>>>();
+
+			foreach (BaseParser parser in parsedToDump)
+			{
+				log.LogMessageJSON(parser.ParsedName);
+
+				string parserId = string.Format("table-{0:D4}", parser.EntryNumber);
+
+				Dictionary<string, string> values = new Dictionary<string, string>();
+				Dictionary<string, Dictionary<string, string>> valuesSet = new Dictionary<string, Dictionary<string, string>>();
+				/*
+				[valuesSet]
+				"stats": { 
+					[values]
+					"attack": 0,
+					"attackalt": 0,
+					"defense": 0
+				},
+				*/
+				string lastCategory = string.Empty;
+				foreach (PropertyInfo property in properties)
+				{
+					string propCategory = ((string)property.GetAttribute<Yggdrasil.Attributes.PrioritizedCategory>().Category).Replace("\t", "");
+
+					if (lastCategory != propCategory)
+                    {
+						if (values.Count() != 0)
+                        {
+							Dictionary<string, string> newValues = new Dictionary<string, string>(values);
+							valuesSet.Add(lastCategory, newValues);
+						}
+						
+						lastCategory = propCategory;
+						values.Clear();
+						log.LogMessageJSON(propCategory);
+					}
+
+					DisplayNameAttribute displayName = property.GetAttribute<DisplayNameAttribute>();
+
+					// Get the actual values
+					object v = property.GetValue(parser, null);
+					TypeConverterAttribute ca = (TypeConverterAttribute)property.GetCustomAttributes(typeof(TypeConverterAttribute), false).FirstOrDefault();
+					TypeConverter c = new TypeConverter();
+					if (ca != null)
+					{
+						Type ct = Type.GetType(ca.ConverterTypeName);
+						if (ct == typeof(EnumConverter))
+							c = (TypeConverter)Activator.CreateInstance(ct, new object[] { property.PropertyType });
+						else
+							c = (TypeConverter)Activator.CreateInstance(ct);
+					}
+					var tmp = c.ConvertTo(v, typeof(string));
+					log.LogMessageJSON(displayName.DisplayName + ":" + tmp as string);
+					values.Add(displayName.DisplayName, tmp as string);
+				}
+
+				perElementDictList.Add(new Dictionary<string, Dictionary<string, string>>(valuesSet));
+				valuesSet.Clear();
+			}
+			BaseParser firstParser = parsedToDump.First();
+			string jsonDictName = firstParser.ParsedName;
+			mainJson.Add(jsonDictName, perElementDictList);
+
+			using (System.IO.StreamWriter file = new System.IO.StreamWriter(outputFilename))
+            {
+				JsonSerializerOptions options = new JsonSerializerOptions();
+				options.WriteIndented = true;
+				string jsonString = JsonSerializer.Serialize(mainJson, options);
+				file.Write(jsonString);
+			}
 		}
 	}
 }

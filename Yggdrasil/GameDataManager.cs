@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Text.Json;
 
 using Yggdrasil.Exceptions;
 using Yggdrasil.FileHandling;

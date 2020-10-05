@@ -218,7 +218,7 @@ namespace Yggdrasil
 			{
 				Title = "Select source ROM",
 				Filter = "Nintendo DS ROMs (*.nds)|*.nds|All Files (*.*)|*.*",
-				InitialDirectory = Path.GetDirectoryName(ApplicationConfig.Instance.LastROMPath),
+				//InitialDirectory = Path.GetDirectoryName(ApplicationConfig.Instance.LastROMPath),
 				FileName = Path.GetFileName(ApplicationConfig.Instance.LastROMPath)
 			};
 			if (ofd.ShowDialog() == DialogResult.OK)
