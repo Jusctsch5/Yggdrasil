@@ -542,7 +542,7 @@ namespace Yggdrasil.Helpers
 				string lastCategory = string.Empty;
 				foreach (PropertyInfo property in properties)
 				{
-					string propCategory = ((string)property.GetAttribute<Yggdrasil.Attributes.PrioritizedCategory>().Category).Replace("\t", "");
+					string propCategory = ((string)property.GetAttribute<Yggdrasil.Attributes.PrioritizedCategory>().Category).Replace("\t", "").Replace("(", "").Replace(")", "");
 
 					if (lastCategory != propCategory)
                     {
@@ -571,13 +571,20 @@ namespace Yggdrasil.Helpers
 						else
 							c = (TypeConverter)Activator.CreateInstance(ct);
 					}
-					var tmp = c.ConvertTo(v, typeof(string));
+					var tmp = c.ConvertTo(v, typeof(string)) as string;
+					tmp = tmp.Replace("(", "").Replace(")", "");
 					log.LogMessageJSON(displayName.DisplayName + ":" + tmp as string);
-					values.Add(displayName.DisplayName, tmp as string);
+
+					var displayStr = displayName.DisplayName.Replace("(", "").Replace(")", "");
+					values.Add(displayStr, tmp as string);
 				}
 
-				perElementDictList.Add(new Dictionary<string, Dictionary<string, string>>(valuesSet));
+				var newElement = new Dictionary<string, Dictionary<string, string>>(valuesSet);
+				string elementName = newElement["Information"]["Name"];
+				perElementDictList.Add(newElement);
+				GenerateJsonForIndividualElement(parsedToDump.First().ParsedName, elementName, newElement, System.IO.Path.GetDirectoryName(outputFilename));
 				valuesSet.Clear();
+
 			}
 			BaseParser firstParser = parsedToDump.First();
 			string jsonDictName = firstParser.ParsedName;
@@ -591,5 +598,32 @@ namespace Yggdrasil.Helpers
 				file.Write(jsonString);
 			}
 		}
+
+		public static void GenerateJsonForIndividualElement(string iParseType, 
+			                                                string iElementName, 
+															Dictionary<string, Dictionary<string, string>> iNewElement, 
+															string iOutDir)
+        {
+			if (iElementName.Contains('<'))
+            {
+				return;
+			}
+			var dictList = new List<Dictionary<string, Dictionary<string, string>>>();
+			dictList.Add(iNewElement);
+			Dictionary<string, List<Dictionary<string, Dictionary<string, string>>>> mainJson = 
+				new Dictionary<string, List<Dictionary<string, Dictionary<string, string>>>>();
+			mainJson.Add(iParseType, dictList);
+
+			string outputFilename = iOutDir + "\\" +iElementName + ".json";
+
+			using (System.IO.StreamWriter file = new System.IO.StreamWriter(outputFilename))
+			{
+				JsonSerializerOptions options = new JsonSerializerOptions();
+				options.WriteIndented = true;
+				string jsonString = JsonSerializer.Serialize(mainJson, options);
+				file.Write(jsonString);
+			}
+		}
 	}
 }
+
