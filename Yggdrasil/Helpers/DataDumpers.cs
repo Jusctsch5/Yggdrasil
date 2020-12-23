@@ -13,6 +13,8 @@ using Yggdrasil.FileHandling.TableHandling;
 using Yggdrasil.TableParsing;
 using Yggdrasil.TextHandling;
 using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace Yggdrasil.Helpers
 {
@@ -571,16 +573,33 @@ namespace Yggdrasil.Helpers
 						else
 							c = (TypeConverter)Activator.CreateInstance(ct);
 					}
-					var tmp = c.ConvertTo(v, typeof(string)) as string;
-					tmp = tmp.Replace("(", "").Replace(")", "");
-					log.LogMessageJSON(displayName.DisplayName + ":" + tmp as string);
+					var value = c.ConvertTo(v, typeof(string)) as string;
+					value = value.Replace("(", "").Replace(")", "").Replace("\n", "").Replace("\r", " ");
+					value = value.Split('.')[0];
+
+					log.LogMessageJSON(displayName.DisplayName + ":" + value as string);
 
 					var displayStr = displayName.DisplayName.Replace("(", "").Replace(")", "");
-					values.Add(displayStr, tmp as string);
+					values.Add(displayStr, value as string);
 				}
+
+
 
 				var newElement = new Dictionary<string, Dictionary<string, string>>(valuesSet);
 				string elementName = newElement["Information"]["Name"];
+
+				// Add UUID, should be generated using a hash of the name of the item
+				using (MD5 md5 = MD5.Create())
+				{
+					byte[] hash = md5.ComputeHash(Encoding.Default.GetBytes(elementName));
+					Guid result = new Guid(hash);
+					valuesSet["Information"].Add("UUID", result.ToString());
+
+				}
+
+				// Remove ID field
+				valuesSet["Information"].Remove("ID");
+
 				perElementDictList.Add(newElement);
 				GenerateJsonForIndividualElement(parsedToDump.First().ParsedName, elementName, newElement, System.IO.Path.GetDirectoryName(outputFilename));
 				valuesSet.Clear();

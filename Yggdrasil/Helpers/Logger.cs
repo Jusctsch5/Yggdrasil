@@ -33,7 +33,7 @@ namespace Yggdrasil.Helpers
 		public Logger(string name)
 		{
 			logEntries = new List<LogEntry>();
-			sw = new StreamWriter(name);
+			sw = new StreamWriter(name + Guid.NewGuid().ToString());
 		}
 
 		~Logger()
